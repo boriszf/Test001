@@ -1,3 +1,7 @@
+import com.android.build.gradle.internal.api.ApkVariantImpl
+import java.text.SimpleDateFormat
+import java.util.Date
+
 plugins {
     alias(libs.plugins.android.application)
 }

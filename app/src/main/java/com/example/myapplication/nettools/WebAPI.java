@@ -24,7 +24,6 @@ public class WebAPI {
     private static Gson GetMyGson() {
         GsonBuilder builder = new GsonBuilder();
         builder.registerTypeAdapter(Date.class, (JsonDeserializer<Date>) (json, typeOfT, context) -> {
-
                 SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss");
             try {
                 return f.parse(json.getAsJsonPrimitive().getAsString());
@@ -39,6 +38,7 @@ public class WebAPI {
             .baseUrl("http://www.miliotech.com:8886/")
             .client(client)
             .addConverterFactory(GsonConverterFactory.create(GetMyGson()))
+            //.addConverterFactory(GsonConverterFactory.create())
             .build();
     private static final ApiService apiService = retrofit.create(ApiService.class);
 
