@@ -45,5 +45,6 @@ dependencies {
     implementation(libs.squareup.okhttp)
     implementation(libs.squareup.retrofit)
     implementation(libs.squareup.converter.gson)
+    implementation(files("./libs/DataCollection.aar"))
 
 }

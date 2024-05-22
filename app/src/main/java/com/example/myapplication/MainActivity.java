@@ -39,7 +39,7 @@ import retrofit2.Response;
 public class MainActivity extends AppCompatActivity {
 
     private static final String Tag="MainActivity";
-    Button myButton;
+    Button myButton,myButton1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,6 +83,11 @@ public class MainActivity extends AppCompatActivity {
             //}
         });
 
+        myButton1 = findViewById(R.id.button1);
+        myButton1.setOnClickListener(v -> {
+            Intent intent = new Intent(this, MainActivityTest.class);
+            startActivity(intent);
+        });
         //软件更新
         MyUpdate();
     }
