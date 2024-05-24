@@ -8,7 +8,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.Manifest;
 
@@ -20,15 +23,21 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelStoreOwner;
 
+import com.example.myapplication.databinding.ActivityMainBinding;
 import com.example.myapplication.models.MyUser;
 import com.example.myapplication.models.ReturnData;
 import com.example.myapplication.models.User;
 import com.example.myapplication.nettools.AutoUpdater;
 import com.example.myapplication.nettools.WebAPI;
+import com.example.myapplication.ui.main.MainViewModel;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import retrofit2.Call;
@@ -36,60 +45,118 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity{
 
+    ActivityMainBinding binding;
+    private MainViewModel mViewModel;
     private static final String Tag="MainActivity";
-    Button myButton,myButton1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        binding=ActivityMainBinding.inflate(getLayoutInflater());
+        mViewModel = new ViewModelProvider(this).get(MainViewModel.class);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_main);
+        setContentView(binding.getRoot());//R.layout.activity_main);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        myButton = findViewById(R.id.button);
-        myButton.setOnClickListener(v -> {
-            //if(myButton.getText().toString().equals("Button")){
-                //myButton.setEnabled(false);
-                myButton.setText("按钮被单击了");
 
-                User user=new User();
-                user.setAccount("admin");
-                user.setPassWord("qdnyncj9690");
-                Call<ReturnData<MyUser>> call= WebAPI.GetApiService().getUser(user);
-                call.enqueue(new Callback<ReturnData<MyUser>>() {
-                    @Override
-                    public void onResponse(@NonNull Call<ReturnData<MyUser>> call, @NonNull Response<ReturnData<MyUser>> response) {
-                        if(response.isSuccessful())
-                        {
-                            ReturnData<MyUser> data=response.body();
-                            if(data != null) {
-                                SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.sss");
-                                myButton.setText(f.format(data.getData().get(0).getFScTime()));
-                                return;
-                            }
-                        }
-                        Toast.makeText(getApplicationContext(),"Toast",Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void onFailure(Call<ReturnData<MyUser>> call, Throwable throwable) {
-                        Log.e(Tag,throwable.getMessage());
-                    }
-                });
-            //}
-        });
-
-        myButton1 = findViewById(R.id.button1);
-        myButton1.setOnClickListener(v -> {
-            Intent intent = new Intent(this, MainActivityTest.class);
-            startActivity(intent);
+        binding.button.setOnClickListener(v->myButton_click(v));
+        binding.button1.setOnClickListener(v->myButton1_click(v));
+        binding.button2.setOnClickListener(v->myButton2_click(v));
+        binding.button3.setOnClickListener(v->myButton3_click(v));
+        binding.button4.setOnClickListener(v->myButton4_click(v));
+        binding.button5.setOnClickListener(v->myButton5_click(v));
+        mViewModel.getLiveData().observe(this, new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                TextView mtextview=findViewById(R.id.mtextview);
+                mtextview.setText(s);
+            }
         });
         //软件更新
-        MyUpdate();
+        //MyUpdate();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Thread thread=new Thread(()-> {
+            while (true)
+            {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                Date date=new Date();
+                mViewModel.getLiveData().postValue(String.valueOf(date.getTime()));
+        }
+        });
+        thread.start();
+    }
+
+    public void myButton_click(View view)
+    {
+        //if(myButton.getText().toString().equals("Button")){
+        //myButton.setEnabled(false);
+        Button myButton=(Button)view;
+        myButton.setText("按钮被单击了");
+
+        User user=new User();
+        user.setAccount("admin");
+        user.setPassWord("qdnyncj9690");
+        Call<ReturnData<MyUser>> call= WebAPI.GetApiService().getUser(user);
+        call.enqueue(new Callback<ReturnData<MyUser>>() {
+            @Override
+            public void onResponse(@NonNull Call<ReturnData<MyUser>> call, @NonNull Response<ReturnData<MyUser>> response) {
+                if(response.isSuccessful())
+                {
+                    ReturnData<MyUser> data=response.body();
+                    if(data != null) {
+                        SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.sss");
+                        myButton.setText(f.format(data.getData().get(0).getFScTime()));
+                        return;
+                    }
+                }
+                Toast.makeText(getApplicationContext(),"Toast",Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onFailure(Call<ReturnData<MyUser>> call, Throwable throwable) {
+                Log.e(Tag,throwable.getMessage());
+            }
+        });
+    }
+    public void myButton1_click(View view)
+    {
+        Intent intent = new Intent(this, MainActivityTest.class);
+        startActivity(intent);
+    }
+    public void myButton2_click(View view)
+    {
+        Intent intent = new Intent(this, MainActivity2.class);
+        startActivity(intent);
+    }
+    public void myButton3_click(View view)
+    {
+        Intent intent = new Intent(this, MainActivity3.class);
+        startActivity(intent);
+    }
+    public void myButton4_click(View view)
+    {
+        Intent intent = new Intent(this, MainActivity3.class);
+        intent.putExtra("mykey",1);
+        startActivity(intent);
+    }
+    public void myButton5_click(View view)
+    {
+        Intent intent = new Intent(this, MainActivity4.class);
+        startActivity(intent);
     }
     private void MyUpdate()
     {
